@@ -1,0 +1,5 @@
+# NOTES LECTURE 2
+
+* Recall R starts counting from one (not zero).
+* R table: a series of column-vectors. Table != matrix.
+* In the tidyverse package there is an alternative to the data.frame called a tibble
