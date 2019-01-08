@@ -1,0 +1,6 @@
+# NOTES LECTURE 1
+
+NB: R counting logic starts at one (not zero).
+
+In RStudio: 
+- source vs run: source executes the complete script while run executes cursor marked sections.
