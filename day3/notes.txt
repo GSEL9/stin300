@@ -1,0 +1,6 @@
+# NOTES LECTURE 3
+
+* The factor() function is the scikit-learn equivalent of encoding categorical variables
+  to numerical levels. Can specify levels among the original categories to consider. 
+  Categories not specifically given are set to NA.
+* The reorder() function shuffles the order of the levels in a factor according to a    criterion (e.g. the mean value of some vector/column)
