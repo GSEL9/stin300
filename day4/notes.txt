@@ -1,0 +1,38 @@
+# NOTES LECTURE 4
+
+The pipe operator %>%:
+* Comes with the dplyr package
+* The pipe is typically used when we make a series of operations
+
+Tidyverse `verbs`:
+* select(): Extract variables from a data set by specifying a vector of labels to select.
+* slice(): Select rows by position indexing.
+* filter(): Extract a subset given a filtering criterion.
+* arrange(): Sorting. Defaults to ascending. Use desc() for descending arrangement.
+* mutate(): Add new variables to a data set while preserving the existing.
+* summarise(): Compute descriptive statistics. Typically applied to grouped data.
+* group_by(): 
+
+
+The dplyr functions are all designed to
+* Take as their first argument a data.frame or a tibble.
+* Return as output a data.frameor a tibble.
+
+Subset selection:
+* The slice() selects a subset of rows from a table.
+* The filter() is based on some condition:
+
+Sorting:
+* arrange() 
+* All sorting functions in R will by default sort in ascending order.
+* Several comma-separated columns may be provided as as arguments to arrange(). 
+  Then the first column is used as primary sorting criterion, the second column is used to    break ties in the first, and so on. 
+
+Logical operators:
+* & = and
+* | = or
+* ! = not 
+
+Altering table columns:
+* Typically takes as input some existing column(s), does something elementwise, and store   the result as a new version of an existing column, or as a new column. The functions applied in mutate() must always be of the type vector-in-vector-out.
+* The transmute() function is similar in many ways to the mutate(), but instead of changing/adding to the input table, it creates a completely new table. 
