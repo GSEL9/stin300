@@ -1,0 +1,14 @@
+# NOTES LECTURE 5
+
+Tidyverse `verbs`:
+* select(): Extract variables from a data set by specifying a vector of labels to select.
+* slice(): Select rows by position indexing.
+* filter(): Extract a subset given a filtering criterion.
+* arrange(): Sorting. Defaults to ascending. Use desc() for descending arrangement.
+* mutate(): Add new variables to a data set while preserving the existing.
+* summarise(): Compute descriptive statistics. Typically applied to grouped data.
+* group_by():
+* bind_cols()/bind_rows(): Concatenate data sets on columns/rows.
+
+NOTE: 
+* To merge tables that are partly different (e.g. different column names), apply merge().
