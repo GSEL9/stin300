@@ -1,1 +1,5 @@
 # NOTES LECTURE 7
+
+The list: 
+* Can store anything (vectors cannot). Each list element may be a different data type.
+* Slower to use than vectors. 
