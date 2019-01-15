@@ -1,0 +1,6 @@
+# NOTES LECTURE 6
+
+Dates:
+* In base R there is a data type named Date.
+* The Date type is just a thin extension of a more basic data type known as POSIXct.
+* The tidy verse lubridate package provides some alternatives for handling dates. 
