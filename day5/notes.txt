@@ -10,5 +10,14 @@ Tidyverse `verbs`:
 * group_by():
 * bind_cols()/bind_rows(): Concatenate data sets on columns/rows.
 
-NOTE: 
+Cookbook: 
 * To merge tables that are partly different (e.g. different column names), apply merge().
+* To create a table where all observations are unravelled into a single column, apply gather().
+* If ‘no tidyselect variables registered’ error is raised, try fixing by wrapping feature labels into the vars() function.
+
+Functions applied to a range of columns (specified by `select_helper` functions):
+* mutate_at() 
+* summarise_at()
+* filter_at() 
+
+
