@@ -67,3 +67,75 @@ delays <- (
   # Sort with largest first
   %>% arrange(desc(avg.delay))
 )
+
+# Stacking table rows:
+cases <- tribble(
+  ~Country, ~"2011", ~"2012", ~"2013",
+  "FR",    7000,    6900,    7000,
+  "DE",    5800,    6000,    6200,
+  "US",   15000,   14000,   13000
+)
+new.cases <- gather(
+  cases, key = "Year", value = "Counts", c(2,3,4), convert = T
+)
+# * key (str): Name of the column created by stacking the column names.
+# * value (str): Name of the column created by stacking the table values.
+#
+# Revert back to original format.
+old.cases <- spread(new.cases, key=Year, value=Counts)
+# * key (object): Specifies an existing column to spread a new column names.
+# * value (object) Specifies an existing column to spread as values.
+
+
+# Exercise: Gather and spread.
+# The tibble named table2 is included in tidyverse. Spread this table into the 
+# four columns: country, year, case and population. 
+new.table2 <- spread(table2, key=type, value=count)
+# Spreading count values by type renders two columns.
+# 
+# The tibble named table4a is included in tidyverse. Gather this table into 
+# the three columns country, year, cases. 
+new.table4a <- gather(table4a, key='year', value='cases', c(2, 3), convert=T)
+# Do similar for table4b, gather into country, year, population. 
+new.table4b <- gather(table4b, key='year', value='cases', c(2, 3), convert=T)
+# Join the two tables by both country and year. The result should again be 
+# identical to table1.
+merge.table4 <- inner_join(
+  new.table4a, new.table4b, by=c('country', 'year')
+)
+
+
+# Filtering missing data
+pollution <- tribble(
+  ~City,        ~Size, ~Amount, 
+ "New York", "large",      23,
+ "New York", "small",      14,
+ "London",   "large",      22,
+ "London",   "small",      16,
+ "Beijing",  "large",      121,
+ "Beijing",  "small",      56  
+)
+# Add a missing value
+pollution$Amount[4] <- NA
+# Filter out the row with drop_na() function:
+poll.new <- pollution %>% drop_na(Amount)
+# Manually:
+poll.new2 <- pollution %>% filter(!is.na(Amount))
+# NOTE: Several columns can be listed in drop_na().
+
+
+# Unique observations
+unique.cities <- pollution %>% distinct(City)
+# Retaining original columns:
+unique.cities2 <- pollution %>% distinct(City, .keep_all = T)
+
+# Multiple-column handling:
+# The `select_helpers` functions enables quickly naming multiple columns.
+# Applying operations to multiple columns:
+poll.new3 <- pollution %>% drop_na(starts_with('A')) 
+a.cols <- pollution %>% select(starts_with('A'))
+# See also:
+# * ends_with() 
+# * contains()
+
+feat.max <- iris %>% summarise_at(vars(contains('Width')), max)
