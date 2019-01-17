@@ -1,4 +1,5 @@
-source('./io.R')
+source('~/Desktop/stin300/project/io.R', local=T)
+source('~/Desktop/stin300/project/utils.R', local=T)
 
 # PART1
 #
@@ -30,3 +31,15 @@ print(fig)
 # 
 # Are some H-types more often paired with particular N-types?
 # Count occurances 
+# 
+# for each H-type
+#   count how often pairs with N-type
+# 
+n.types <- length(fasta.table$H.type)
+M <- matrix(
+  0, nrow=n.types, ncol=n.types,
+  dimnames=list(fasta.table$H.type, fasta.table$N.type)
+)
+for (i in 1:n.types) {
+  print(table(fasta.table$H.type[i]))
+}

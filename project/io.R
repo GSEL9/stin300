@@ -8,6 +8,9 @@
 # Concact = Langberg@gmail.com
 # 
 
+library(stringr)
+library(tidyverse)
+
 
 ReadFasta <- function(path_to_file) {
   # Enables reading and formatting fasta file.
@@ -32,16 +35,4 @@ ReadFasta <- function(path_to_file) {
     fasta.table$Sequence[i] <- str_c(dna.seq, collapse="")
   }
   return(fasta.table)
-}
-
-
-WriteFasta <- function(path_to_file, fasta.table) {
-  #
-  #
-  # Args:
-  #   path_to_file (character): A reference to the disk location
-  #     of where to write the file.
-  #   fasta.table (table): The data table.
-  #
-  
 }

@@ -12,7 +12,7 @@
 library(gtools)
 library(tidyverse)
 
-source('./io.R')
+source('./io.R', local=T)
 
 # PART1
 
