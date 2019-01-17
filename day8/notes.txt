@@ -1,0 +1,5 @@
+# NOTES LECTURE 8
+
+* The difference between a vector and a list:
+* The difference between a table (data.frame) and a list:
+* Characteristic of a  matrix: 
