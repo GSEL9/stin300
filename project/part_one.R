@@ -1,7 +1,9 @@
 source('~/Desktop/stin300/project/io.R', local=T)
 source('~/Desktop/stin300/project/utils.R', local=T)
 
-# PART1
+library(gtools)
+
+# PART 1
 #
 # Reading and formatting of data.
 #
@@ -25,21 +27,13 @@ fig <- fig + coord_flip() + labs(x='N-type', y='Count')
 print(fig)
 #dev.off()
 
-
-#
-# H-type and N-type associations.
-# 
-# Are some H-types more often paired with particular N-types?
-# Count occurances 
-# 
-# for each H-type
-#   count how often pairs with N-type
-# 
-n.types <- length(fasta.table$H.type)
-M <- matrix(
-  0, nrow=n.types, ncol=n.types,
-  dimnames=list(fasta.table$H.type, fasta.table$N.type)
+# # H-type and N-type associations. Plotting the frequency of each H-type 
+# relative to each N-type.
+#jpeg('./figures/seroptype_freq.jpg', width=1000, height=1000)
+fig <- ggplot(fasta.table) + geom_bar(
+  aes(x=factor(Serotype, levels=mixedsort(unique(Serotype)))), 
+  fill='steelblue'
 )
-for (i in 1:n.types) {
-  print(table(fasta.table$H.type[i]))
-}
+fig <- fig + coord_flip() + labs(x='Serotype', y='Count')
+print(fig)
+#dev.off()

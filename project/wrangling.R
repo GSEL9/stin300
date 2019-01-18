@@ -35,12 +35,7 @@ image(
 
 
 
-# Produce a matrix representation of detected L-mers relative to the 
-# L-mer space. 
-L <- 2
-all.lmers <- elmers(L=L, iter=1, alphabet=c('A', 'C', 'G', 'T'))
-lmer.counts <- elmerCount(fasta.table$Sequence[1], L=L, all.lmers)
-mers.M <- elmerMatrix(lmer.counts, all.lmers)
+
 
 # Convert matrix to table and bind to fasta table.
 #mers.table <- as.data.frame(mers.M)

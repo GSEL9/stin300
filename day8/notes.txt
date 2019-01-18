@@ -1,5 +1,16 @@
 # NOTES LECTURE 8
 
-* The difference between a vector and a list:
-* The difference between a table (data.frame) and a list:
-* Characteristic of a  matrix: 
+* The difference between a vector and a list: Lists are `recursive` which means they can contain elements of different data types. Vectors can only hold numerical, character or logical elements. Additionally, all elements of a vector must be the same data type, while each element in a list may differ from each other.
+* The difference between a table (data.frame) and a list: A data frame holds vectors of equal length rendering limitations to quivalent data types in each individual vector. 
+
+Vector: All elements must be of the same data type. 
+Matrix: Similar to a vector, but with two additional attributes (num of rows/cols).
+Array: Similar to matrices, but can have more than two dimensions. 
+List: Can contain elements of different types.
+Data Frame: Stores data tables. A list of vectors of equal length.
+Data Table: An inheritance of data frames, but with additional features. Extends the base R data frame. 
+
+* Convert selected columns from a table to a matrix: as.matrix()
+* Convert a matrix back to a table: as.tibble() or as.data.frame()
+* Bind rows or columns to a table: bind_rows() or bind_cols()
+* Bind rows or columns to a matrix: rbind() or cbind()
