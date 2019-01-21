@@ -1,5 +1,5 @@
-source('~/Desktop/stin300/project/io.R', local=T)
-source('~/Desktop/stin300/project/utils.R', local=T)
+source('~/Desktop/stin300/project/io.R')
+source('~/Desktop/stin300/project/utils.R')
 
 library(gtools)
 
@@ -7,7 +7,7 @@ library(gtools)
 #
 # Reading and formatting of data.
 #
-path_to_file <- './../data/Neuraminidase.fasta'
+path_to_file <- '~/Desktop/stin300/data/Neuraminidase.fasta'
 # Load the file and store the data in a table. 
 fasta.table <- ReadFasta(path_to_file)
 # Add serotype informatino.

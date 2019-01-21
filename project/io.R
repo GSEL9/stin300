@@ -1,26 +1,17 @@
 # -*- coding: utf-8 -*-
 #
 # io.py
-#
-# Handling of reading from and writing to files.
 # 
-# Author = Severin Langberg
-# Concact = Langberg@gmail.com
+# Author: Severin Langberg
 # 
 
 library(stringr)
+library(gtools)
 library(tidyverse)
 
 
 ReadFasta <- function(path_to_file) {
-  # Enables reading and formatting fasta file.
-  # 
-  # Args:
-  #   path_to_file (character): Disk location of data file.
-  # 
-  # Returns:
-  #   (table): The table formatted fasta data.
-  # 
+  # Read and format Neuraminidase data.
   raw.lines <- readLines(path_to_file)
   header.idx <- which(str_detect(raw.lines, '>'))
   fasta.table <- tibble(
@@ -38,15 +29,8 @@ ReadFasta <- function(path_to_file) {
 }
 
 
-PrepFasta <- function(fasta.table, add_serotype=T) {
-  # Format a FASTA table. 
-  # 
-  # Args:
-  #   fasta.table (table):
-  #
-  # Kwargs:
-  #   add_serotype (bool): 
-  # 
+FormatFasta <- function(fasta.table, add_serotype=T) {
+  # Format the Serotype feature. 
   if (add_serotype) {
     fasta.table <- (
       fasta.table

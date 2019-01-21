@@ -6,12 +6,11 @@
 library(tidyverse)
 library(MASS)
 
-dplyr::select()
-
 source('~/Desktop/stin300/project/io.R', local=T)
 source('~/Desktop/stin300/project/utils.R', local=T)
 
-path_to_file <- './../data/Neuraminidase.fasta'
+# Load the formatted data table.
+path_to_file <- '~/Desktop/stin300/data/Neuraminidase.fasta'
 fasta.table <- ReadFasta(path_to_file)
 fasta.table <- PrepFasta(fasta.table)
 
@@ -72,24 +71,28 @@ for (i in 1:n.seqs) {
   M[i, ] <- lmer.counts
 }
 # Scale rows to unit length. 
-M <- M / rowSums(M, na.rm=T)
-fasta.ext <- bind_cols(fasta.table, as.data.frame(M))
+M <- as.data.frame(M / rowSums(M, na.rm=T))
+# Bind to original data table and save data to disk for later access.
+fasta.ext <- bind_cols(fasta.table, M)
+write_delim(
+  subset(fasta.ext, select=-c(Header, Sequence, Serotype, H.type)), 
+  path='~/Desktop/stin300/data/Lmers_data.txt', delim=';'
+)
 
-
-# From the full data set, extract the subset containing only the cases for N-types N1, N3 and N6. 
 # Fit an LDA-model to these data, using the N-types as response (class-labels). Make a plot of the 
 # cases as points in the space of linear discriminants (we did this in week 2-3). Map colors to the 
-# N-types. 
+# N-types.
+
+# Select only the cases for N-types N1, N3 and N6. 
 idx <- which(fasta.ext$N.type %in% c('N1', 'N3', 'N6'))
+# Skip `Header` as a feature and convert categorical variables into factors.
 X <- (
   fasta.ext[idx, ]
-  %>% subset(select=-c(Header))
-  %>% mutate(Sequence=factor(Sequence), Serotype=factor(Serotype), H.type=factor(H.type))
+  %>% subset(select=-c(Header, Sequence, Serotype, H.type))
+  #%>% mutate(Sequence=factor(Sequence), Serotype=factor(Serotype), H.type=factor(H.type))
 )
+# Set selected the N-types as response labels.
 y <- factor(fasta.ext$N.type[idx], levels=unique(fasta.ext$N.type))
-# The prior is the probability of belonging to a class without considering any X-data. It says 
-# something about the size of the classes, the larger the class the more likely any random object 
-# belongs to it. The priors we use should reflect the population we are interested in.
-
-lda.mod <- lda(N.type~., data=X)
+# Traing an LDA model.
+lda.mod <- lda(N.type ~ ., data=X)
 
