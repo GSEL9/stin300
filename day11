@@ -1,0 +1,4 @@
+# NOTES LECTURE 11
+
+* Split data set into smaller regions and fit a local model within that region is referred to as local models.
+* Splicing together local models enables approximating non-linear models.
