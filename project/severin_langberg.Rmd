@@ -1,0 +1,246 @@
+---
+title: "STIN300: Mandatory Assignement"
+author: "Severin Langberg"
+date: "1/21/2019"
+output: html_document
+---
+
+```{r setup, include=TRUE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(gtools)
+library(stringr)
+library(tidyverse)
+
+set.seed(2019)
+```
+
+## Part 1
+
+Functions for reading and formatting data:
+```{r include=TRUE}
+ReadFasta <- function(path_to_file) {
+  # Read and format Neuraminidase data.
+  raw.lines <- readLines(path_to_file)
+  header.idx <- which(str_detect(raw.lines, '>'))
+  fasta.table <- tibble(
+    Header = str_remove(raw.lines[header.idx], '^>'),
+    Sequence = rep('', length(header.idx))
+  )
+  # Add a final value to the index vector.
+  header.idx <- c(header.idx, length(raw.lines) + 1)
+  for(i in 1:(length(header.idx) - 1)) {
+    dna.seq <- raw.lines[(header.idx[i] + 1):(header.idx[i + 1] - 1)]
+    # Join multiple strings into a single string combined with `collapse`.
+    fasta.table$Sequence[i] <- str_c(dna.seq, collapse="")
+  }
+  return(fasta.table)
+}
+
+
+FormatFasta <- function(fasta.table, add_serotype=T) {
+  # Format the Serotype feature. 
+  if (add_serotype) {
+    fasta.table <- (
+      fasta.table
+      %>% mutate(
+        Serotype=str_extract(
+          fasta.table$Header, pattern='H[0-9]{1,2}N[0-9]{1,2}'
+        ),
+        H.type=str_extract(fasta.table$Header, pattern='H[0-9]{1,2}'),
+        N.type=str_extract(fasta.table$Header, pattern='N[0-9]{1,2}')
+      )
+      %>% drop_na(Var=Serotype)
+    )
+  }
+  return (fasta.table)
+}
+```
+
+Read the *Neuraminidase.fasta* data file into R, and format the *Serotype* feature.
+```{r load data, echo=FALSE, message=FALSE, include=TRUE}
+fasta.table <- ReadFasta('~/Desktop/stin300/data/Neuraminidase.fasta')
+fasta.table <- FormatFasta(fasta.table)
+```
+Plotting the frequency of each N-type in the data set.
+```{r, fig.width=12, fig.height=5, echo=FALSE, message=FALSE, include=TRUE}
+ggplot2::ggplot(fasta.table) + geom_bar(
+  aes(x=factor(N.type, levels=mixedsort(unique(N.type)))), 
+  fill='steelblue'
+) + labs(x='N-type', y='Count')
+```
+
+Plotting the frequency of each H-type and N-type pair in assessing how often a given H-type combine with a specific N-types.
+```{r, fig.width=8, fig.height=8, echo=FALSE, message=FALSE, include=TRUE}
+counts <- table(fasta.table$H.type, fasta.table$N.type)
+x <- (1:nrow(counts))
+y <- (1:ncol(counts))
+image(x, y, z=counts, col=heat.colors(10), axes=FALSE, srt=20, xlab='N-type', ylab='H-type')
+axis(3, at=1:ncol(counts), labels=colnames(counts), srt=4, tick=T)
+axis(2, at=1:nrow(counts), labels=rownames(counts), srt=4, tick=T)
+```
+
+
+## Part 2
+
+Given the function `elmers` to generate all possible L-mers in sorted order, a function counting L-mer occurances given a single DNA sequence and an integer value L is given in `elmerCounts`:
+
+```{r, echo=FALSE, include=TRUE}
+elmers <- function(L, iter=1, alphabet=c("A","C","G","T")) {
+  # Produces all possible L-mers from a sequence and return them 
+  # in sorted order.
+  require(stringr)
+  
+  if(iter < L){
+    w <- elmers(L, iter + 1, alphabet)
+    w <- str_c(
+      rep(w, each = length(alphabet)),
+      rep(alphabet, times = length(alphabet))
+    )
+  } else {
+    w <- alphabet
+  }
+  return(sort(w))
+}
+```
+
+```{r include=TRUE}
+elmerCounts <- function(seq.str, elmers, L) {
+  # Count the number of L-mers extracted from a character 
+  # sequence.
+  lmer.counts <- numeric(length(elmers))
+  # The total number of sequence divisions.
+  n.splits <- str_length(seq.str) - L + 1
+  for (i in 1:n.splits) {
+    # Extract the L-mer sequence and determine its position
+    # relative to the complete L-mer space.
+    lmer <- substr(seq.str, start=i, stop=i + L - 1)
+    idx <- match(lmer, all.lmers)
+    # Update the count for each encountered L-mer.
+    lmer.counts[idx] <- lmer.counts[idx] + 1
+  }
+  return(lmer.counts)
+}
+```
+
+Generating a 2-mer count matrix scaled to unit row sums with setup
+```{r include=TRUE}
+L <- 2
+n.seqs <- length(fasta.table$Sequence)
+all.lmers <- elmers(L=L, iter=1, alphabet=c('A', 'C', 'G', 'T'))
+M <- matrix(0, nrow=n.seqs, ncol=length(all.lmers))
+colnames(M) <- all.lmers
+```
+Collect a DNA sequence from the data set, create a vector with counts of each encountered L-mer and store the result in the count matrix.
+```{r include=TRUE}
+for (i in 1:n.seqs) {
+  lmer.counts <- elmerCounts(fasta.table$Sequence[i], all.lmers, L=L)
+  M[i, ] <- lmer.counts
+}
+```
+Scale rows to unit length, and converting the 2-mer count matrix to a table and binding it to the *Neuraminidase.fasta* table, and extracting a subset containing only the cases for N-types N1, N3 and N6. 
+```{r include=TRUE}
+M <- as.data.frame(M / rowSums(M, na.rm=T))
+fasta.ext <- bind_cols(fasta.table, M)
+```
+Building an LDA model from the selected with N-types as response variable, and plotting the transformed features in the linear discriminants space, colouring the N-types. 
+```{r, fig.width=7, fig.height=5, message=FALSE,}
+fasta.sub <- (
+  fasta.ext[which(fasta.ext$N.type %in% c('N1', 'N3', 'N6')), ]
+  %>% subset(select=-c(Header, Sequence, Serotype))
+)
+lda.model <- MASS::lda(N.type ~ ., data=fasta.sub)
+plot(lda.model, col=seq(1, 100, 1)[unique(factor(fasta.sub$N.type))])
+```
+
+## Part 3
+
+Implementing the distance function
+```{r include=TRUE}
+log2.dist <- function(p, Q) {
+  # Inputs a vector `p` and a matrix `Q`. Returns a vector 
+  # of distances from p to each row in Q.
+  nrows <- nrow(Q)
+  pQ.dist <- numeric(nrows)
+  for (i in 1:nrows) {
+    # Calculate the distance between vector p and the vector 
+    # being a row in Q.
+    pq.dist <- sum(abs(log2(p / Q[i, ])))
+    pQ.dist[i] <- pq.dist
+  }
+ return(pQ.dist)
+}
+```
+and the the k-NN algorithm.
+```{r include=TRUE}
+knn_predict <- function(X.train, X.test, y.train, k=3) {
+  # Implementaiton of the k-nearest neighbor classification
+  # algorithm.
+  n.test <- nrow(X.test)
+  indicators = numeric(n.test)
+  for (i in 1:n.test) {
+    # Compute the distance vector.
+    test.dist <- log2.dist(X.test[i, ], X.train)
+    # Select the k closest neighbors.
+    top.k.idx <- order(test.dist, decreasing=FALSE)[1:k]
+    # Map the k smallest dinstances to response labels.
+    indicators[i] <- major_vote(y.train[top.k.idx])
+
+  }
+  return(indicators)
+}
+```
+The majority voting scheme for prediction and model performance score are defined as 
+```{r include=TRUE}
+major_vote <- function(x) {
+  return(names(sort(table(x), decreasing=T)[1]))
+}
+
+knn_score <- function(y_true, y_pred) {
+  error = length(setdiff(y_true, y_pred)) / length(y_true)
+  return(1- error)
+}
+```
+Classifying N-types from the neuraminidase data with $k \in [1, 3, 5]$ with 100-fold CV of performance. 
+```{r include=TRUE}
+k.neigh <- c(1, 3, 5)
+n.folds <- 100
+
+X <- (
+  fasta.ext
+  %>% subset(select=-c(Header, Sequence, Serotype, H.type, N.type))
+  %>% as.matrix()
+)
+y <- fasta.ext %>% subset(select=c(N.type)) %>% as.matrix()
+
+# Sample test data indices without replacement.
+fold_idx <- sample(rep(1:n.folds, length.out=nrow(X)))
+
+avg.scores <- numeric(length(k.neigh))
+for (n in 1:length(k.neigh)) {
+  
+  scores <- numeric(n.folds)
+  for (j in 1:n.folds) {
+    # Collect the indices of samples in each fold.
+    test_idx <- which(fold_idx == j)
+  
+    X.test <- X[test_idx, ]
+    X.train <- X[-test_idx, ]
+
+    y.test <- y[test_idx]
+    y.train <- y[-test_idx]
+    
+    y.pred <- knn_predict(X.train, X.test, y.train, k=k.neigh[n])
+    scores[j] <- knn_score(y.test, y.pred)
+  }
+  avg.scores[n] <- mean(scores)
+}
+```
+Plot the averaged 100-fold CV scores for each configuration of $k$.
+```{r, fig.width=7, fig.height=5, include=TRUE}
+cv.results <- bind_cols(
+  data.frame(Scores=avg.scores), 
+  data.frame(K=k.neigh)
+)
+ggplot(as.data.frame(cv.results)) + geom_point(aes(x=K, y=Scores)) + labs(x='K neighbours', y='CV prediction accuracy') + ylim(0.991, 0.993)
+```
